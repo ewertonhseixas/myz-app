@@ -672,7 +672,16 @@ function renderHub(filter = 'all') {
             .slice(0, 4);
 
         const skillsHtml = sortedSkills.length > 0
-            ? sortedSkills.map(([name, val]) => `<div class="hub-skill-item"><span>${name.toUpperCase()}</span><span>${val}</span></div>`).join('')
+            ? sortedSkills.map(([name, val]) => {
+                let displayName = name.toUpperCase();
+                if (name === 'especialista' && char.role) {
+                    const roleData = SPECIALIST_SKILLS[char.role.toLowerCase()];
+                    if (roleData && roleData.name) {
+                        displayName = roleData.name.toUpperCase();
+                    }
+                }
+                return `<div class="hub-skill-item"><span>${displayName}</span><span>${val}</span></div>`;
+            }).join('')
             : '<div class="dim" style="grid-column: span 2; text-align: center;">Nenhuma Perícia Ativa</div>';
 
         card.innerHTML = `
