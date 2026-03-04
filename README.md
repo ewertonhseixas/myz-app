@@ -40,7 +40,9 @@ Grade interativa para exploração e registro da Zona:
 ## 📂 Estrutura do Projeto
 
 - `/` : Arquivos HTML principais (módulos).
+  - Inclui a nova **Barra de Navegação Superior (Top Nav)** interativa e responsiva em todas as subpáginas (Roller, Personagens, Arca, Mapa e Encontros).
 - `/js` : Lógica do sistema, dados de referência e persistência.
+  - O Hub de Personagens agora inicia no prático formato de visualização em **Cards** por padrão, oferecendo visão rápida de atributos e destaques.
 - `/css` : Folhas de estilo com estética CRT e responsividade.
 - `/assets` : Recursos visuais e mídias.
 - `/reference_data` : Documentos originais usados na sincronização do banco de dados.

@@ -14,7 +14,23 @@
 <body>
     <div class="background-noise"></div>
     <div class="app-container">
-        <a href="index.html" class="btn-back">← VOLTAR AO TERMINAL CENTRAL</a>
+        <nav class="top-nav">
+            <div class="top-nav-left">
+                <a href="index.html" class="btn-back">← VOLTAR AO TERMINAL CENTRAL</a>
+            </div>
+            <button class="burger-menu" id="burger-menu" onclick="toggleNav()">
+                <div class="burger-line"></div>
+                <div class="burger-line"></div>
+                <div class="burger-line"></div>
+            </button>
+            <div class="top-nav-links" id="nav-links">
+                <a href="roller.html" class="nav-link active">ROLLER</a>
+                <a href="personagens.html" class="nav-link">PERSONAGENS</a>
+                <a href="arca.html" class="nav-link">ARCA</a>
+                <a href="mapa.html" class="nav-link">MAPA</a>
+                <a href="#" class="nav-link">ENCONTROS</a>
+            </div>
+        </nav>
         <header>
             <h1>MYZ // TERMINAL ROLLER</h1>
             <p class="subtitle">SISTEMA DE ANÁLISE DE PROBABILIDADE MUTANTE

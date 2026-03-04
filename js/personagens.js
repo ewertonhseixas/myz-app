@@ -1,6 +1,6 @@
 let characters = [];
 let currentCharacterId = null;
-let hubViewMode = 'details'; // 'card' ou 'details'
+let hubViewMode = 'card'; // 'card' ou 'details'
 
 const TALENTS_BASE = {
     "Adestrador de Cães": [

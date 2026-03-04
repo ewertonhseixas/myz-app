@@ -245,3 +245,11 @@ function rollQuickDice() {
         arena.appendChild(resBadge);
     }
 }
+
+function toggleNav() {
+    const navLinks = document.getElementById('nav-links');
+    if (navLinks) {
+        navLinks.classList.toggle('show');
+    }
+}
+

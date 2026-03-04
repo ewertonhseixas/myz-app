@@ -14,7 +14,23 @@
 <body class="personagens-body">
     <div class="background-noise"></div>
     <div class="app-container">
-        <a href="index.html" class="btn-back">← VOLTAR AO TERMINAL CENTRAL</a>
+        <nav class="top-nav">
+            <div class="top-nav-left">
+                <a href="index.html" class="btn-back">← VOLTAR AO TERMINAL CENTRAL</a>
+            </div>
+            <button class="burger-menu" id="burger-menu" onclick="toggleNav()">
+                <div class="burger-line"></div>
+                <div class="burger-line"></div>
+                <div class="burger-line"></div>
+            </button>
+            <div class="top-nav-links" id="nav-links">
+                <a href="roller.html" class="nav-link">ROLLER</a>
+                <a href="personagens.html" class="nav-link active">PERSONAGENS</a>
+                <a href="arca.html" class="nav-link">ARCA</a>
+                <a href="mapa.html" class="nav-link">MAPA</a>
+                <a href="#" class="nav-link">ENCONTROS</a>
+            </div>
+        </nav>
 
         <header id="hub-header">
             <h1>HUB de PERSONAGENS</h1>
@@ -28,7 +44,7 @@
                 </div>
                 <div class="hub-view-controls">
                     <button id="btn-toggle-view" class="btn-secondary" onclick="toggleHubView()"
-                        title="Alternar Visualização">RESUMO 📋</button>
+                        title="Alternar Visualização">CARD 🎴</button>
                     <button class="btn-primary" onclick="abrirModalEscolhaCriacao()">+ NOVO MUTANTE</button>
                 </div>
             </div>
