@@ -666,6 +666,15 @@ function renderHub(filter = 'all') {
         const talents = char.talents || [];
         const mutations = char.mutations || [];
 
+        const sortedSkills = Object.entries(skills)
+            .filter(([name, val]) => val > 0)
+            .sort((a, b) => b[1] - a[1])
+            .slice(0, 4);
+
+        const skillsHtml = sortedSkills.length > 0
+            ? sortedSkills.map(([name, val]) => `<div class="hub-skill-item"><span>${name.toUpperCase()}</span><span>${val}</span></div>`).join('')
+            : '<div class="dim" style="grid-column: span 2; text-align: center;">Nenhuma Perícia Ativa</div>';
+
         card.innerHTML = `
             <div class="card-header-redesign">
                 <div class="card-portrait-hub">
@@ -703,12 +712,9 @@ function renderHub(filter = 'all') {
                 </div>
 
                 <div class="card-hub-section">
-                    <div class="hub-section-title">PERÍCIAS PRINCIPAIS</div>
+                    <div class="hub-section-title">PERÍCIAS DE DESTAQUE</div>
                     <div class="hub-skills-grid">
-                        <div class="hub-skill-item"><span>LUTAR</span><span>${skills.lutar || 0}</span></div>
-                        <div class="hub-skill-item"><span>ATIRAR</span><span>${skills.atirar || 0}</span></div>
-                        <div class="hub-skill-item"><span>OBSERVAR</span><span>${skills.observar || 0}</span></div>
-                        <div class="hub-skill-item"><span>MANIPULAR</span><span>${skills.manipular || 0}</span></div>
+                        ${skillsHtml}
                     </div>
                 </div>
 
