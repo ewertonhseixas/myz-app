@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MYZ // A ARCA</title>
+    <meta name="description" content="Dashboard da Arca para Mutant Ano Zero">
+    <link rel="stylesheet" href="css/style_v2.css">
+    <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Teko:wght@500;700&display=swap"
+        rel="stylesheet">
+</head>
+
+<body class="arca-body">
+    <div class="background-noise"></div>
+    <div class="app-container arca-container">
+        <a href="index.html" class="btn-back">← VOLTAR AO TERMINAL CENTRAL</a>
+        <header>
+            <h1>DASHBOARD DA ARCA</h1>
+            <p class="subtitle">GERENCIADOR DE DESENVOLVIMENTO E SOBREVIVÊNCIA</p>
+        </header>
+
+        <main class="arca-grid">
+            <!-- Coluna 1: Dados Gerais e População -->
+            <section class="arca-column">
+                <div class="arca-panel info-panel click-edit" onclick="abrirModalEditInfo()">
+                    <div class="panel-header-actions">
+                        <h3>DADOS DA ARCA</h3>
+                        <button class="btn-edit-inline" onclick="abrirModalEditInfo()" title="Editar Dados">✏️</button>
+                    </div>
+                    <div class="arca-info-display" style="margin-top: 10px;">
+                        <p><strong>NOME:</strong> <span id="disp-arca-nome">---</span></p>
+                        <p><strong>TIPO:</strong> <span id="disp-arca-tipo">---</span></p>
+                        <p><strong>COORDENADAS:</strong> <span id="disp-arca-coord">---</span></p>
+                        <p><strong>ESTAÇÃO:</strong> <span id="disp-arca-estacao">---</span></p>
+                        <p><strong>FONTE DE ÁGUA:</strong> <span id="disp-arca-agua">---</span></p>
+                    </div>
+                </div>
+
+                <div class="arca-panel pop-panel">
+                    <h3>POPULAÇÃO <span id="pop-display">200</span></h3>
+                    <div class="pop-controls">
+                        <button class="btn-small" onclick="modPop(-1)">-1</button>
+                        <button class="btn-small" onclick="modPop(-5)">-5</button>
+                        <button class="btn-small" onclick="modPop(1)">+1</button>
+                    </div>
+                    <p class="pop-hint">A população só diminui (mortes/fome).</p>
+                </div>
+            </section>
+
+            <!-- Coluna 2: Níveis de Desenvolvimento (DEVs) no Formato 2x2 -->
+            <section class="arca-column">
+                <div class="arca-panel dev-panel">
+                    <div class="panel-header-actions">
+                        <h3>NÍVEIS DE DESENVOLVIMENTO (DEV)</h3>
+                        <button class="btn-edit-inline" onclick="abrirModalEditDev()" title="Editar DEVs">✏️</button>
+                    </div>
+
+                    <div class="dev-grid">
+                        <div class="dev-item color-base">
+                            <div class="dev-header">
+                                <span class="icon">🍖</span>
+                                <span class="dev-title">COMIDA</span>
+                            </div>
+                            <div class="dev-value-display">
+                                <span id="disp-dev-comida">0</span>
+                            </div>
+                        </div>
+
+                        <div class="dev-item color-skill">
+                            <div class="dev-header">
+                                <span class="icon">📚</span>
+                                <span class="dev-title">CULTURA</span>
+                            </div>
+                            <div class="dev-value-display">
+                                <span id="disp-dev-cultura">0</span>
+                            </div>
+                        </div>
+
+                        <div class="dev-item color-gear">
+                            <div class="dev-header">
+                                <span class="icon">🔧</span>
+                                <span class="dev-title">TECNOLOGIA</span>
+                            </div>
+                            <div class="dev-value-display">
+                                <span id="disp-dev-tecnologia">0</span>
+                            </div>
+                        </div>
+
+                        <div class="dev-item color-war">
+                            <div class="dev-header">
+                                <span class="icon">⚔️</span>
+                                <span class="dev-title">GUERRA</span>
+                            </div>
+                            <div class="dev-value-display">
+                                <span id="disp-dev-guerra">0</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Coluna 3: Projetos -->
+            <section class="arca-column full-width">
+                <div class="arca-panel projects-panel">
+                    <div class="panel-header-flex">
+                        <h3>PROJETOS EM ANDAMENTO</h3>
+                        <button class="btn-primary btn-add" onclick="abrirGaleriaProjetos()">GALERIA</button>
+                    </div>
+
+                    <div id="projetos-lista" class="projects-list">
+                        <!-- Projetos injetados por JS -->
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Modal Novo Projeto -->
+    <div id="modal-projeto" class="modal" style="z-index: 105;">
+        <div class="modal-content" style="max-width: 600px;">
+            <h2>NOVO PROJETO DA ARCA</h2>
+
+            <div class="input-line">
+                <label>NOME DO PROJETO:</label>
+                <input type="text" id="proj-nome" placeholder="Ex: Defesas, Plantação, Relógio de Sol">
+            </div>
+
+            <div class="input-line">
+                <label>PONTOS DE TRABALHO TOTAIS:</label>
+                <input type="number" id="proj-trabalho" min="1" value="1" style="width:100px;">
+            </div>
+
+            <div class="input-line">
+                <label>DESCRIÇÃO (Opcional):</label>
+                <input type="text" id="proj-desc" placeholder="O que este projeto faz pela Arca?">
+            </div>
+
+            <div class="input-line">
+                <label>EFEITO / BÔNUS DE DEV (Opcional):</label>
+                <input type="text" id="proj-efeito" placeholder="Ex: +2D6 Guerra e +1D6 Comida">
+            </div>
+
+            <div class="modal-actions"
+                style="display:flex; justify-content:space-between; gap:20px; margin-top:1.5rem;">
+                <button class="btn-clear" onclick="fecharModalProjeto()" style="padding: 10px;">CANCELAR</button>
+                <button class="btn-primary" onclick="salvarNovoProjeto()" style="padding: 10px;">CRIAR PROJETO</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Edit Arca Info -->
+    <div id="modal-edit-info" class="modal">
+        <div class="modal-content" style="max-width: 500px;">
+            <h2>EDITAR DADOS DA ARCA</h2>
+            <div class="input-line">
+                <label>NOME:</label>
+                <input type="text" id="arca-nome" placeholder="Ex: O Fosso">
+            </div>
+            <div class="input-line">
+                <label>TIPO:</label>
+                <input type="text" id="arca-tipo" placeholder="Ex: Navio Encalhado">
+            </div>
+            <div class="input-line">
+                <label>COORDENADAS:</label>
+                <input type="text" id="arca-coord" placeholder="X,Y">
+            </div>
+            <div class="input-line">
+                <label>ESTAÇÃO:</label>
+                <select id="arca-estacao">
+                    <option value="Primavera">Primavera</option>
+                    <option value="Verão">Verão</option>
+                    <option value="Outono">Outono</option>
+                    <option value="Inverno">Inverno</option>
+                </select>
+            </div>
+            <div class="input-line">
+                <label>FONTE DE ÁGUA:</label>
+                <input type="text" id="arca-agua" placeholder="Ex: Poço contaminado">
+            </div>
+            <div class="modal-actions"
+                style="display:flex; justify-content:space-between; gap:20px; margin-top:1.5rem;">
+                <button class="btn-clear" onclick="fecharModalInfo()" style="padding: 10px;">CANCELAR</button>
+                <button class="btn-primary" onclick="salvarArcaInfo()" style="padding: 10px;">SALVAR DADOS</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Edit DEVs -->
+    <div id="modal-edit-dev" class="modal">
+        <div class="modal-content" style="max-width: 500px;">
+            <h2>EDITAR NÍVEIS DE DESENVOLVIMENTO</h2>
+
+            <div class="input-line">
+                <label>🍖 COMIDA:</label>
+                <div class="spinner">
+                    <button class="btn-spin" onclick="modDev('comida', -1)">-</button>
+                    <input type="number" id="edit-dev-comida" value="0" readonly>
+                    <button class="btn-spin" onclick="modDev('comida', 1)">+</button>
+                </div>
+            </div>
+
+            <div class="input-line">
+                <label>📚 CULTURA:</label>
+                <div class="spinner">
+                    <button class="btn-spin" onclick="modDev('cultura', -1)">-</button>
+                    <input type="number" id="edit-dev-cultura" value="0" readonly>
+                    <button class="btn-spin" onclick="modDev('cultura', 1)">+</button>
+                </div>
+            </div>
+
+            <div class="input-line">
+                <label>🔧 TECNOLOGIA:</label>
+                <div class="spinner">
+                    <button class="btn-spin" onclick="modDev('tecnologia', -1)">-</button>
+                    <input type="number" id="edit-dev-tecnologia" value="0" readonly>
+                    <button class="btn-spin" onclick="modDev('tecnologia', 1)">+</button>
+                </div>
+            </div>
+
+            <div class="input-line">
+                <label>⚔️ GUERRA:</label>
+                <div class="spinner">
+                    <button class="btn-spin" onclick="modDev('guerra', -1)">-</button>
+                    <input type="number" id="edit-dev-guerra" value="0" readonly>
+                    <button class="btn-spin" onclick="modDev('guerra', 1)">+</button>
+                </div>
+            </div>
+
+            <div class="modal-actions" style="display:flex; justify-content:center; margin-top:1.5rem;">
+                <button class="btn-primary" onclick="fecharModalDev()"
+                    style="padding: 10px; min-width: 150px;">FECHAR</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Galeria de Projetos -->
+    <div id="modal-project-gallery" class="modal">
+        <div class="modal-content"
+            style="max-width: 900px; padding: 0; overflow: hidden; display: flex; flex-direction: column;">
+            <div style="padding: 1.5rem; border-bottom: 1px dashed var(--color-skill);">
+                <h2 style="margin: 0; font-size: 2rem;">GALERIA DE PROJETOS</h2>
+                <div class="gallery-filters gallery-filters-mob"
+                    style="margin-top: 15px; display: flex; gap: 10px; flex-wrap: wrap;">
+                    <input type="text" id="project-search" placeholder="Buscar projeto..." oninput="filtrarGaleria()"
+                        style="flex: 1; min-width: 200px;">
+                    <select id="filter-type" onchange="filtrarGaleria()" style="width: auto;">
+                        <option value="todos" id="opt-todos">Todos</option>
+                        <option value="comida">🍖 Comida</option>
+                        <option value="cultura">📚 Cultura</option>
+                        <option value="tecnologia">🔧 Tecnologia</option>
+                        <option value="guerra">⚔️ Guerra</option>
+                    </select>
+                </div>
+            </div>
+            <div id="project-gallery-list" class="project-gallery-grid"
+                style="padding: 1.5rem; overflow-y: auto; flex: 1; min-height: 0;">
+                <!-- Cards injetados via JS -->
+            </div>
+            <div class="modal-actions modal-actions-gallery"
+                style="padding: 1.5rem; border-top: 1px dashed var(--color-skill); display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 10px; background: rgba(0,0,0,0.2); flex-shrink: 0;">
+                <button class="btn-clear btn-gallery-custom" onclick="abrirModalProjeto()"
+                    style="flex: 1; min-width: 100px; padding: 10px;">
+                    <span class="desk-text">NOVO PROJETO</span><span class="mob-text" style="display:none;">NOVO
+                        PROJETO</span>
+                </button>
+                <button class="btn-primary btn-gallery-close" onclick="fecharGaleria()"
+                    style="flex: 1; min-width: 100px; padding: 10px;">
+                    <span class="desk-text">FECHAR</span><span class="mob-text" style="display:none;">FECHAR</span>
+                </button>
+            </div>
+        </div>
+    </div> <!-- Modal Detalhe do Projeto Presets -->
+    <div id="modal-project-detail" class="modal">
+        <div class="modal-content" style="max-width: 500px;">
+            <h2 id="det-proj-nome">NOME DO PROJETO</h2>
+            <div class="modal-view-state">
+                <div class="info-block">
+                    <label>TIPO / BÔNUS</label>
+                    <p id="det-proj-bonus" class="text-description italic">---</p>
+                </div>
+                <div class="info-block">
+                    <label>PERÍCIAS REQUERIDAS</label>
+                    <p id="det-proj-skills" class="text-description">---</p>
+                </div>
+                <div class="info-block">
+                    <label>TRABALHO TOTAL (x Jogadores)</label>
+                    <p id="det-proj-work" class="text-description">---</p>
+                </div>
+                <div class="info-block">
+                    <label>DESCRIÇÃO</label>
+                    <p id="det-proj-desc" class="text-description">---</p>
+                </div>
+            </div>
+            <div class="modal-actions"
+                style="display:flex; justify-content:space-between; gap:20px; margin-top:1.5rem;">
+                <button class="btn-clear" onclick="fecharDetalheProjeto()">VOLTAR</button>
+                <button class="btn-primary" id="btn-start-project">INICIAR PROJETO</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Quantidade de Jogadores -->
+    <div id="modal-player-count" class="modal">
+        <div class="modal-content" style="max-width: 400px; text-align: center;">
+            <h2 id="player-count-title">MULTIPLICADOR DE TRABALHO</h2>
+            <p id="player-count-subtitle" class="text-description" style="margin-bottom: 20px;">
+                Quantos jogadores trabalharão neste projeto?
+            </p>
+
+            <div class="input-line" style="justify-content: center; margin-bottom: 30px;">
+                <div class="spinner" style="transform: scale(1.2);">
+                    <button class="btn-spin" onclick="modPlayerCount(-1)">-</button>
+                    <input type="number" id="input-player-count" value="1" min="1" max="20" readonly
+                        style="width: 60px; text-align: center; font-size: 1.5rem; color: var(--color-skill);">
+                    <button class="btn-spin" onclick="modPlayerCount(1)">+</button>
+                </div>
+            </div>
+
+            <div class="modal-actions" style="display:flex; justify-content:space-between; gap:20px;">
+                <button class="btn-clear" onclick="fecharModalPlayerCount()" style="flex: 1;">CANCELAR</button>
+                <button class="btn-primary" id="btn-confirm-player-count" style="flex: 1;">CONFIRMAR</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/arca_data_v2.js"></script>
+    <script src="js/arca_v2.js"></script>
+    <script src="js/global.js?v=5"></script>
+</body>
+
+</html>

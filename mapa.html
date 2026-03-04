@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MYZ // MAPA DA ZONA</title>
+    <meta name="description" content="Mapeador de Setores para Mutant Ano Zero">
+    <link rel="stylesheet" href="css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Teko:wght@500;700&display=swap"
+        rel="stylesheet">
+</head>
+
+<body class="mapa-body">
+    <div class="background-noise"></div>
+    <div class="app-container mapa-container">
+        <a href="index.html" class="btn-back">← VOLTAR AO TERMINAL CENTRAL</a>
+        <header>
+            <h1>MAPA DA ZONA</h1>
+            <p class="subtitle">SISTEMA DE MAPEAMENTO DE RUÍNAS E AMEAÇAS</p>
+        </header>
+
+        <div class="mapa-header-tools"
+            style="display: flex; justify-content: flex-end; gap: 10px; margin-bottom: 1rem;">
+            <button class="btn-small" onclick="abrirModalInfo()">ℹ️ Legenda</button>
+            <button class="btn-small" onclick="toggleSetup()">⚙️ Configurar</button>
+            <button class="btn-small text-danger" onclick="abrirModalClear()">🗑️ Limpar Mapa</button>
+        </div>
+
+        <section id="mapa-setup" class="mapa-controls arca-panel" style="display: none;">
+            <h3>DIMENSÕES DO MAPA</h3>
+            <div class="control-group">
+                <div class="input-line">
+                    <label>LARGURA (Colunas Numéricas):</label>
+                    <input type="number" id="map-x" value="10" min="1" max="50" style="width: 80px;">
+                </div>
+                <div class="input-line">
+                    <label>ALTURA (Linhas em Letras):</label>
+                    <input type="number" id="map-y" value="10" min="1" max="50" style="width: 80px;">
+                </div>
+                <button class="btn-primary" onclick="generateMapConfig()"
+                    style="align-self: flex-end; margin-bottom: 5px;">GERAR / REDIMENSIONAR MAPA</button>
+            </div>
+            <p class="pop-hint" style="margin-top: 10px;">Atenção: Ao diminuir o mapa, você pode perder os dados das
+                bordas ocultadas!</p>
+        </section>
+
+        <section class="mapa-viewport">
+            <div id="map-grid" class="map-grid">
+                <!-- Células geradas via Javascript -->
+            </div>
+        </section>
+    </div>
+
+    <!-- Modal Setor do Mapa -->
+    <div id="modal-setor" class="modal">
+        <div class="modal-content" style="max-width: 500px;">
+            <h2 id="modal-setor-title">SETOR A1</h2>
+
+            <div class="input-line">
+                <label>ÍCONE DO SETOR (Opcional):</label>
+                <select id="setor-icon">
+                    <option value="">Nenhum (Vazio)</option>
+                    <option value="⛺">⛺ A Arca</option>
+                    <option value="🏢">🏢 Ruína Explorável</option>
+                    <option value="☠️">☠️ Ameaça / Monstro</option>
+                    <option value="📦">📦 Artefato / Loot</option>
+                    <option value="🔥">🔥 Acampamento</option>
+                    <option value="✅">✅ Setor Limpo</option>
+                    <option value="☢️">☢️ Área Fortemente Irradiada</option>
+                    <option value="☣️">☣️ Área de Podridão</option>
+                    <option value="💧">💧 Fonte de Água</option>
+                </select>
+            </div>
+
+            <div class="input-line">
+                <label>TÍTULO/LOCAL:</label>
+                <input type="text" id="setor-titulo" placeholder="Ex: Shopping Tombado">
+            </div>
+
+            <div class="input-line">
+                <label>NÍVEL DE AMEAÇA (0 a 3):</label>
+                <div class="threat-indicator" id="threat-selector">
+                    <div class="threat-btn t0" id="tb-0" onclick="selectThreat(0)">0 (Seguro)</div>
+                    <div class="threat-btn t1" id="tb-1" onclick="selectThreat(1)">1</div>
+                    <div class="threat-btn t2" id="tb-2" onclick="selectThreat(2)">2</div>
+                    <div class="threat-btn t3" id="tb-3" onclick="selectThreat(3)">3 (Mortal)</div>
+                </div>
+                <input type="hidden" id="setor-ameaca" value="0">
+            </div>
+
+            <div class="input-line">
+                <label>ANOTAÇÕES:</label>
+                <textarea id="setor-notas" rows="4"
+                    style="width: 100%; background: transparent; border: 1px solid #555; border-radius: 4px; color: var(--text-main); font-family: 'Share Tech Mono', monospace; padding: 10px;"
+                    placeholder="Descreva ruínas, artefatos achados ou perigos neste setor..."></textarea>
+            </div>
+
+            <div class="modal-actions" style="display:flex; justify-content:space-between; margin-top:1.5rem;">
+                <button class="btn-clear" onclick="fecharModalSetor()">FECHAR</button>
+                <button class="btn-primary" onclick="salvarSetor()">SALVAR SETOR</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Legenda/Info -->
+    <div id="modal-info" class="modal">
+        <div class="modal-content" style="max-width: 400px;">
+            <h2>LEGENDA DO MAPA</h2>
+            <ul
+                style="list-style: none; padding: 0; margin-top: 1rem; color: #ccc; font-size: 0.9rem; line-height: 1.8;">
+                <li>⛺ <strong>A Arca:</strong> Seu ponto seguro.</li>
+                <li>🏢 <strong>Ruína Explorável:</strong> Setor onde rola-se por achados.</li>
+                <li>☠️ <strong>Ameaça:</strong> Monstros e perigos conhecidos.</li>
+                <li>📦 <strong>Artefato:</strong> Equipamentos raros do Velho Mundo.</li>
+                <li>🔥 <strong>Acampamento:</strong> Assentamento de outros Mutantes.</li>
+                <li>✅ <strong>Setor Limpo:</strong> Área sem mais perigos aparentes.</li>
+                <li>☢️ <strong>Irradiação Forte:</strong> Risco fatal de trauma.</li>
+                <li>☣️ <strong>Podridão:</strong> Riscos biológicos sérios.</li>
+                <li>💧 <strong>Fonte de Água:</strong> Suprimento potável.</li>
+            </ul>
+            <div style="margin-top: 1rem;">
+                <p><strong>Ameaça:</strong> Retratos de cores diferentes contornam o ladrilho revelando a letalidade do
+                    setor (Verde, Amarelo, Laranja ou Vermelho).</p>
+            </div>
+            <div class="modal-actions" style="margin-top:1.5rem; text-align: center;">
+                <button class="btn-primary" onclick="fecharModalInfo()">ENTENDIDO</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Limpar Mapa -->
+    <div id="modal-clear" class="modal">
+        <div class="modal-content" style="max-width: 400px; text-align: center;">
+            <h2 style="color: #ff4d4d; border-bottom: 1px dashed #ff4d4d;">ALERTA CRÍTICO: LIMPEZA TOTAL</h2>
+            <p style="margin-top: 1rem; color: #ccc; font-size: 1.1rem; line-height: 1.5;">
+                Tem certeza que deseja apagar absolutamente <strong>todos</strong> os setores, ruínas e anotações deste
+                mapa?
+            </p>
+            <p style="color: #888; font-size: 0.9rem; margin-top: 10px;">Esta ação é irreversível.</p>
+            <div class="modal-actions" style="margin-top: 2rem; display: flex; justify-content: space-between;">
+                <button class="btn-clear" onclick="fecharModalClear()">CANCELAR</button>
+                <button class="btn-primary" style="background: #ff4d4d; color: #fff; border-color: #ff4d4d;"
+                    onclick="confirmarClearMapa()">SIM, DESTRUIR TUDO</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/mapa.js"></script>
+    <script src="js/global.js"></script>
+</body>
+
+</html>

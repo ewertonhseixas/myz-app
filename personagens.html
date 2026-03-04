@@ -1,0 +1,862 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MYZ // PERSONAGENS</title>
+    <meta name="description" content="Gerenciador de Personagens para Mutant Ano Zero">
+    <link rel="stylesheet" href="css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Teko:wght@500;700&display=swap"
+        rel="stylesheet">
+</head>
+
+<body class="personagens-body">
+    <div class="background-noise"></div>
+    <div class="app-container">
+        <a href="index.html" class="btn-back">← VOLTAR AO TERMINAL CENTRAL</a>
+
+        <header id="hub-header">
+            <h1>HUB de PERSONAGENS</h1>
+            <p class="subtitle">REGISTROS DE MUTANTES NA ZONA</p>
+
+            <div class="hub-toolbar">
+                <div class="filters">
+                    <button class="btn-filter active" onclick="filterCharacters('all')">TODOS</button>
+                    <button class="btn-filter" onclick="filterCharacters('pc')">JOGADORES</button>
+                    <button class="btn-filter" onclick="filterCharacters('npc')">NPCs</button>
+                </div>
+                <button class="btn-primary" onclick="abrirModalEscolhaCriacao()">+ NOVO MUTANTE</button>
+            </div>
+        </header>
+
+        <main id="hub-main" class="character-hub-grid">
+            <!-- Cards de personagens serão injetados aqui -->
+            <div class="empty-hub">
+                <p>NENHUM REGISTRO ENCONTRADO NO BANCO DE DADOS.</p>
+            </div>
+        </main>
+
+        <!-- Dashboard Detalhado -->
+        <main id="char-dashboard" class="arca-grid" style="display: none;">
+            <header class="dash-header">
+                <div class="dash-actions">
+                    <button class="btn-clear" onclick="voltarAoHub()">← VOLTAR AO HUB</button>
+                    <button class="btn-clear" onclick="duplicarPersonagemAtual()">DUPLICAR 📑</button>
+                    <button class="btn-clear text-danger" onclick="deletarPersonagemAtual()">APAGAR REGISTRO ✖</button>
+                </div>
+                <div class="char-header-container">
+                    <div class="char-portrait-container" onclick="abrirModalEscolhaAvatar()" title="Opções de Imagem">
+                        <img id="dash-char-img" src="" alt="Portrait" onerror="this.src='assets/no avatar.webp'">
+                        <div class="portrait-overlay">OPÇÕES</div>
+                        <input type="file" id="edit-char-file" style="display: none" accept="image/*"
+                            onchange="handleImageUpload(this)">
+                    </div>
+                    <div class="char-header-info">
+                        <div class="char-name-row">
+                            <h2 id="dash-char-name">NOME DO PERSONAGEM</h2>
+                            <button class="btn-edit-inline" onclick="abrirModalEditHeader()"
+                                title="Editar Cabeçalho">✏️</button>
+                        </div>
+                        <div class="char-role-player-row">
+                            <div class="arca-tag" id="dash-char-role">FUNÇÃO</div>
+                            <div class="arca-tag player-tag" id="dash-player-name">JOGADOR: ---</div>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <!-- 1. ATRIBUTOS E CONDIÇÕES (JUNTOS) -->
+            <section class="full-width">
+                <div class="arca-panel">
+                    <div class="panel-header-actions">
+                        <h3>ATRIBUTOS & TRAUMAS</h3>
+                        <button class="btn-edit-inline" onclick="abrirModalEditStats()"
+                            title="Editar Atributos">✏️</button>
+                    </div>
+                    <div class="stats-grid redesign">
+                        <div class="stat-card" data-stat="forca">
+                            <div class="card-header">FORÇA</div>
+                            <div class="card-body">
+                                <div class="val-main" id="val-forca">0</div>
+                                <div class="val-divider"></div>
+                                <div class="val-sub"><span id="val-dano">0</span> <small>DANO</small></div>
+                            </div>
+                        </div>
+                        <div class="stat-card" data-stat="agilidade">
+                            <div class="card-header">AGILIDADE</div>
+                            <div class="card-body">
+                                <div class="val-main" id="val-agilidade">0</div>
+                                <div class="val-divider"></div>
+                                <div class="val-sub"><span id="val-fadiga">0</span> <small>FADIGA</small></div>
+                            </div>
+                        </div>
+                        <div class="stat-card" data-stat="astucia">
+                            <div class="card-header">ASTÚCIA</div>
+                            <div class="card-body">
+                                <div class="val-main" id="val-astucia">0</div>
+                                <div class="val-divider"></div>
+                                <div class="val-sub"><span id="val-confusao">0</span> <small>CONFUSÃO</small></div>
+                            </div>
+                        </div>
+                        <div class="stat-card" data-stat="empatia">
+                            <div class="card-header">EMPATIA</div>
+                            <div class="card-body">
+                                <div class="val-main" id="val-empatia">0</div>
+                                <div class="val-divider"></div>
+                                <div class="val-sub"><span id="val-duvida">0</span> <small>DÚVIDA</small></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="panel-header-actions" style="margin-top: 1.5rem;">
+                        <h3>CONDIÇÕES ATIVAS</h3>
+                        <button class="btn-edit-inline" onclick="abrirModalEditConditions()">✏️</button>
+                    </div>
+                    <div id="conditions-list" class="conditions-tags" style="margin-top: 10px;">
+                        <!-- Tags via JS -->
+                    </div>
+                </div>
+            </section>
+
+            <!-- 2. XP, PM E ROT -->
+            <section class="arca-presentation-row">
+                <div class="arca-panel tracker-display click-edit" onclick="abrirModalEditXP()">
+                    <label>XP (EXPERIÊNCIA)</label>
+                    <div id="xp-dots" class="xp-dots-container"></div>
+                </div>
+                <div class="tracker-row-pm-rot">
+                    <div class="arca-panel tracker-display click-edit" onclick="abrirModalEditTrackers()">
+                        <label>PM</label>
+                        <div class="val-large" id="disp-pm">0</div>
+                    </div>
+                    <div class="arca-panel tracker-display click-edit" onclick="abrirModalEditTrackers()">
+                        <label>ROT</label>
+                        <div class="val-large" id="disp-rot">0</div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 3. MUTAÇÕES E INVENTÁRIO -->
+            <section class="arca-presentation-row">
+                <div class="arca-panel click-edit" onclick="abrirModalEditMutations()">
+                    <div class="panel-header-actions">
+                        <h3>MUTAÇÕES</h3>
+                        <button class="btn-add-inline"
+                            onclick="event.stopPropagation(); abrirModalEditMutations()">+</button>
+                    </div>
+                    <div id="mutations-list" class="talents-mini-list"></div>
+                </div>
+                <div class="arca-panel click-edit" onclick="abrirModalEditInventory()">
+                    <div class="panel-header-actions">
+                        <h3>INVENTÁRIO & CARGA</h3>
+                        <button class="btn-add-inline"
+                            onclick="event.stopPropagation(); abrirModalEditInventory()">+</button>
+                    </div>
+                    <div class="inventory-bar-container">
+                        <div id="inventory-bar-fill" class="inventory-bar-fill"></div>
+                        <span id="inventory-status-text">Carga: 0 / 0</span>
+                    </div>
+                    <div id="inventory-list-mini" class="inventory-mini-grid"></div>
+                </div>
+            </section>
+
+            <!-- 4. PERÍCIAS E TALENTOS -->
+            <section class="arca-presentation-row">
+                <div class="arca-panel skills-panel click-edit" onclick="abrirModalEditSkills()">
+                    <div class="panel-header-actions">
+                        <h3>PERÍCIAS</h3>
+                        <button class="btn-add-inline"
+                            onclick="event.stopPropagation(); abrirModalEditSkills()">+</button>
+                    </div>
+                    <div id="skills-list" class="skills-mini-list"></div>
+                </div>
+                <div class="arca-panel talents-panel click-edit" onclick="abrirModalEditTalents()">
+                    <div class="panel-header-actions">
+                        <h3>TALENTOS</h3>
+                        <button class="btn-add-inline"
+                            onclick="event.stopPropagation(); abrirModalEditTalents()">+</button>
+                    </div>
+                    <div id="talents-list" class="talents-mini-list"></div>
+                </div>
+            </section>
+
+            <!-- 5. PARCEIROS E RELAÇÕES -->
+            <section class="arca-presentation-row">
+                <div class="arca-panel click-edit" onclick="abrirModalEditBuddies()">
+                    <div class="panel-header-actions">
+                        <h3>PARCEIROS</h3>
+                        <button class="btn-add-inline"
+                            onclick="event.stopPropagation(); abrirModalEditBuddies()">+</button>
+                    </div>
+                    <div id="disp-buddies-list" class="relation-list-mini"></div>
+                </div>
+                <div class="arca-panel click-edit" onclick="abrirModalEditNPCs()">
+                    <div class="panel-header-actions">
+                        <h3>RELAÇÕES (NPCs)</h3>
+                        <button class="btn-add-inline"
+                            onclick="event.stopPropagation(); abrirModalEditNPCs()">+</button>
+                    </div>
+                    <div id="disp-npcs-relations" class="relation-list-mini"></div>
+                </div>
+            </section>
+
+            <!-- 6. IDENTIDADE -->
+            <section class="full-width">
+                <div class="arca-panel click-edit" onclick="abrirModalEditIdentity()">
+                    <h3>IDENTIDADE</h3>
+                    <div class="identity-display">
+                        <p><strong>GRANDE SONHO:</strong> <span id="disp-dream">Nenhum registro.</span></p>
+                        <p><strong>APARÊNCIA:</strong> <span id="disp-appearance">Nenhum registro.</span></p>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Modais de Edição -->
+
+    <!-- Modal Edit Header (Name, Role, Img) -->
+    <div id="modal-edit-header" class="modal">
+        <div class="modal-content">
+            <h2>EDITAR CABEÇALHO</h2>
+            <div class="input-line">
+                <label>NOME DO PERSONAGEM:</label>
+                <input type="text" id="edit-char-name" placeholder="Nome...">
+            </div>
+            <div class="input-line">
+                <label>JOGADOR (OPCIONAL):</label>
+                <input type="text" id="edit-player-name" placeholder="Nome do Jogador...">
+            </div>
+            <div class="input-line">
+                <label>FUNÇÃO:</label>
+                <select id="edit-char-role">
+                    <option value="adestrador">Adestrador</option>
+                    <option value="batedor">Batedor</option>
+                    <option value="brutamonte">Brutamonte</option>
+                    <option value="chefão">Chefão</option>
+                    <option value="cronista">Cronista</option>
+                    <option value="engenheiro">Engenheiro</option>
+                    <option value="escravo">Escravo</option>
+                    <option value="negociante">Negociante</option>
+                </select>
+            </div>
+            <div class="input-line">
+                <label>TIPO DE REGISTRO:</label>
+                <select id="edit-char-type">
+                    <option value="pc">PJ (PERSONAGEM DO JOGADOR)</option>
+                    <option value="npc">NPC (PERSONAGEM DO MESTRE)</option>
+                </select>
+            </div>
+            <div class="input-line">
+                <label>URL DA IMAGEM (OPCIONAL):</label>
+                <input type="text" id="edit-char-img" placeholder="https://...">
+            </div>
+            <div class="modal-actions">
+                <button class="btn-primary" onclick="salvarHeader()">SALVAR MUDANÇAS</button>
+                <button class="btn-clear" onclick="fecharModais()">CANCELAR</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Edit Stats -->
+    <div id="modal-edit-stats" class="modal">
+        <div class="modal-content">
+            <h2>EDITAR ATRIBUTOS & TRAUMAS</h2>
+            <div class="edit-stats-scroll">
+                <!-- Força -->
+                <div class="edit-row">
+                    <div class="edit-col">
+                        <label>FORÇA:</label>
+                        <div class="spinner">
+                            <button class="btn-spin" onclick="updateBaseStat('forca', -1)">-</button>
+                            <input type="text" id="edit-forca" readonly value="2">
+                            <button class="btn-spin" onclick="updateBaseStat('forca', 1)">+</button>
+                        </div>
+                    </div>
+                    <div class="edit-col">
+                        <label>DANO:</label>
+                        <div class="trauma-controls">
+                            <button onclick="updateTrauma('dano', -1)">-</button>
+                            <span id="edit-dano">0</span>
+                            <button onclick="updateTrauma('dano', 1)">+</button>
+                        </div>
+                    </div>
+                </div>
+                <!-- Agilidade -->
+                <div class="edit-row">
+                    <div class="edit-col">
+                        <label>AGILIDADE:</label>
+                        <div class="spinner">
+                            <button class="btn-spin" onclick="updateBaseStat('agilidade', -1)">-</button>
+                            <input type="text" id="edit-agilidade" readonly value="2">
+                            <button class="btn-spin" onclick="updateBaseStat('agilidade', 1)">+</button>
+                        </div>
+                    </div>
+                    <div class="edit-col">
+                        <label>FADIGA:</label>
+                        <div class="trauma-controls">
+                            <button onclick="updateTrauma('fadiga', -1)">-</button>
+                            <span id="edit-fadiga">0</span>
+                            <button onclick="updateTrauma('fadiga', 1)">+</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="edit-row">
+                    <div class="edit-col">
+                        <label>ASTÚCIA:</label>
+                        <div class="spinner">
+                            <button class="btn-spin" onclick="updateBaseStat('astucia', -1)">-</button>
+                            <input type="text" id="edit-astucia" readonly value="2">
+                            <button class="btn-spin" onclick="updateBaseStat('astucia', 1)">+</button>
+                        </div>
+                    </div>
+                    <div class="edit-col">
+                        <label>CONFUSÃO:</label>
+                        <div class="trauma-controls">
+                            <button onclick="updateTrauma('confusao', -1)">-</button>
+                            <span id="edit-confusao">0</span>
+                            <button onclick="updateTrauma('confusao', 1)">+</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="edit-row">
+                    <div class="edit-col">
+                        <label>EMPATIA:</label>
+                        <div class="spinner">
+                            <button class="btn-spin" onclick="updateBaseStat('empatia', -1)">-</button>
+                            <input type="text" id="edit-empatia" readonly value="2">
+                            <button class="btn-spin" onclick="updateBaseStat('empatia', 1)">+</button>
+                        </div>
+                    </div>
+                    <div class="edit-col">
+                        <label>DÚVIDA:</label>
+                        <div class="trauma-controls">
+                            <button onclick="updateTrauma('duvida', -1)">-</button>
+                            <span id="edit-duvida">0</span>
+                            <button onclick="updateTrauma('duvida', 1)">+</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-actions">
+                <button class="btn-primary" onclick="fecharModais()">CONCLUIR</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Edit Trackers -->
+    <div id="modal-edit-trackers" class="modal">
+        <div class="modal-content">
+            <h2>PONTOS DE MUTAÇÃO & PODRIDÃO</h2>
+            <div class="edit-trackers-grid">
+                <div class="tracker-box">
+                    <label>PONTOS DE MUTAÇÃO (PM)</label>
+                    <div class="tracker-controls">
+                        <button onclick="updateTracker('pm', -1)">-</button>
+                        <span id="edit-pm" class="tracker-val">0</span>
+                        <button onclick="updateTracker('pm', 1)">+</button>
+                    </div>
+                </div>
+                <div class="tracker-box">
+                    <label>PODRIDÃO (ROT)</label>
+                    <div class="tracker-controls">
+                        <button onclick="updateTracker('rot', -1)">-</button>
+                        <span id="edit-rot" class="tracker-val">0</span>
+                        <button onclick="updateTracker('rot', 1)">+</button>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-actions">
+                <button class="btn-primary" onclick="fecharModais()">CONCLUIR</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Edit Conditions -->
+    <div id="modal-edit-conditions" class="modal">
+        <div class="modal-content">
+            <h2>GERENCIAR CONDIÇÕES</h2>
+            <div class="conditions-grid">
+                <label class="condition-item">
+                    <input type="checkbox" id="edit-cond-fome" onchange="toggleCondition('fome')">
+                    <span>FAMINTO / SEM COMIDA</span>
+                </label>
+                <label class="condition-item">
+                    <input type="checkbox" id="edit-cond-sede" onchange="toggleCondition('sede')">
+                    <span>DESIDRATADO / SEM ÁGUA</span>
+                </label>
+                <label class="condition-item">
+                    <input type="checkbox" id="edit-cond-sono" onchange="toggleCondition('sono')">
+                    <span>SEM SONO / EXAUSTO</span>
+                </label>
+                <label class="condition-item">
+                    <input type="checkbox" id="edit-cond-frio" onchange="toggleCondition('frio')">
+                    <span>HIPOTÉRMICO / COM FRIO</span>
+                </label>
+            </div>
+            <div class="modal-actions">
+                <button class="btn-primary" onclick="fecharModais()">CONCLUIR</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Edit Identity -->
+    <div id="modal-edit-identity" class="modal">
+        <div class="modal-content">
+            <h2>EDITAR IDENTIDADE</h2>
+            <div class="input-line">
+                <label>GRANDE SONHO:</label>
+                <input type="text" id="edit-dream" onchange="updateIdentity('dream', this.value)"
+                    placeholder="Qual seu objetivo?">
+            </div>
+            <div class="input-line">
+                <label>APARÊNCIA (ROSTO, CORPO, ROUPAS):</label>
+                <textarea id="edit-appearance" onchange="updateIdentity('appearance', this.value)"
+                    placeholder="Descreva seu mutante..."></textarea>
+            </div>
+            <div class="modal-actions">
+                <button class="btn-primary" onclick="fecharModais()">CONCLUIR</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Edit Skills -->
+    <div id="modal-edit-skills" class="modal">
+        <div class="modal-content">
+            <h2>EDITAR PERÍCIAS</h2>
+            <div class="edit-skills-grid" id="edit-skills-container">
+                <!-- Injetado via JS -->
+            </div>
+            <div class="modal-actions">
+                <button class="btn-primary" onclick="fecharModais()">CONCLUIR</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Edit Talents -->
+    <div id="modal-edit-talents" class="modal">
+        <div class="modal-content">
+            <h2>GERENCIAR TALENTOS</h2>
+            <div class="talent-entry-box vertical">
+                <input type="text" id="new-talent-name" placeholder="Procure por um talento..." list="talent-list-data"
+                    oninput="checkPredefinedTalent(this.value)">
+                <textarea id="new-talent-desc" readonly
+                    placeholder="Descrição/Bônus aparecerá aqui ou adicione manual..."></textarea>
+                <button class="btn-primary" onclick="adicionarTalento()">ADICIONAR TALENTO</button>
+            </div>
+            <div id="edit-talents-list" class="talents-list-edit">
+                <!-- Talentos injetados via JS -->
+            </div>
+            <div class="modal-actions">
+                <button class="btn-primary" onclick="fecharModais()">CONCLUIR</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Edit Inventory -->
+    <div id="modal-edit-inventory" class="modal">
+        <div class="modal-content">
+            <h2>GERENCIAR INVENTÁRIO</h2>
+            <div class="inventory-entry-box">
+                <div class="input-stack">
+                    <input type="text" id="new-item-name" placeholder="Procurar item..." list="equip-list"
+                        oninput="checkPredefinedItem(this.value)">
+                    <div class="input-row">
+                        <select id="new-item-weight" onchange="toggleCustomWeight(this.value)">
+                            <option value="pequeno">Peso: Pequeno (0)</option>
+                            <option value="leve">Peso: Leve (0.5)</option>
+                            <option value="normal" selected>Peso: Normal (1)</option>
+                            <option value="pesado">Peso: Pesado (2)</option>
+                            <option value="outro">Peso: Outro (Custom)...</option>
+                        </select>
+                        <input type="number" id="new-item-weight-custom" step="0.5" placeholder="Kg"
+                            style="display: none; width: 60px;">
+                        <input type="number" id="new-item-dice" placeholder="Bônus 🎲" min="0" max="10"
+                            style="width: 80px;">
+                    </div>
+                </div>
+                <button class="btn-primary" onclick="adicionarItem()">ADD</button>
+            </div>
+
+            <div id="edit-inventory-list" class="inventory-list-edit">
+                <!-- Itens injetados via JS -->
+            </div>
+            <div class="modal-actions">
+                <button class="btn-primary" onclick="fecharModais()">CONCLUIR</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Edit Buddies (Parceiros) -->
+    <div id="modal-edit-buddies" class="modal">
+        <div class="modal-content">
+            <h2>PARCEIROS</h2>
+            <p style="font-size: 0.8rem; color: #888; margin-bottom: 10px;">Quem você protege? Você pode ter mais de um
+                parceiro.</p>
+            <div class="talent-entry-box vertical">
+                <input type="text" id="new-buddy-name" placeholder="Nome do Parceiro...">
+                <textarea id="new-buddy-desc" placeholder="Descrição do Parceiro (Opcional)..."></textarea>
+                <button class="btn-primary" onclick="adicionarBuddy()">ADD</button>
+            </div>
+            <div id="edit-buddies-list" class="talents-list-edit">
+                <!-- Parceiros injetados via JS -->
+            </div>
+            <div class="modal-actions">
+                <button class="btn-primary" onclick="salvarBuddies()">SALVAR PARCEIROS</button>
+                <button class="btn-clear" onclick="fecharModais()">CANCELAR</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Edit NPCs (Relações) -->
+    <div id="modal-edit-npcs" class="modal">
+        <div class="modal-content">
+            <h2>RELAÇÕES (NPCs)</h2>
+            <div class="talent-entry-box vertical">
+                <div class="input-row">
+                    <input type="text" id="new-npc-name" placeholder="Nome do NPC...">
+                    <select id="new-npc-rel">
+                        <option value="proteger">Proteger</option>
+                        <option value="odiar">Odiar</option>
+                    </select>
+                </div>
+                <textarea id="new-npc-desc" placeholder="Descrição da Relação (Opcional)..."></textarea>
+                <button class="btn-primary" onclick="adicionarNPC()">ADD</button>
+            </div>
+            <div id="edit-npcs-list" class="talents-list-edit">
+                <!-- NPCs injetados via JS -->
+            </div>
+            <div class="modal-actions">
+                <button class="btn-primary" onclick="salvarNPCs()">SALVAR RELAÇÕES</button>
+                <button class="btn-clear" onclick="fecharModais()">CANCELAR</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Edit XP -->
+    <div id="modal-edit-xp" class="modal">
+        <div class="modal-content">
+            <h2>EXPERIÊNCIA (XP)</h2>
+            <p>Marque os pontos de XP ganhos nesta sessão:</p>
+            <div id="xp-edit-container" class="xp-dots-edit">
+                <!-- Checkboxes de XP injetados via JS -->
+            </div>
+            <div class="modal-actions">
+                <button class="btn-primary" onclick="fecharModais()">CONCLUIR</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modais de Detalhes (Leitura) -->
+    <div id="modal-skill-detail" class="modal">
+        <div class="modal-content">
+            <h2 id="detalhe-pericia-nome">NOME PERÍCIA</h2>
+
+            <!-- Modo Visualização -->
+            <div id="skill-view-mode" class="modal-view-state">
+                <div class="detail-info">
+                    <p><strong>ATRIBUTO:</strong> <span id="detalhe-pericia-attr">---</span></p>
+                    <div class="menu-divider"></div>
+                    <div class="info-block">
+                        <label>DESCRIÇÃO BASE:</label>
+                        <p id="detalhe-pericia-base" class="text-description italic">---</p>
+                    </div>
+                    <div class="info-block">
+                        <label>SUAS NOTAS / USOS:</label>
+                        <p id="detalhe-pericia-notes" class="text-description">---</p>
+                    </div>
+                </div>
+                <div class="modal-actions">
+                    <button class="btn-primary" onclick="toggleModalEdit('skill', true)">EDITAR NOTAS ✏️</button>
+                    <button class="btn-clear" onclick="fecharModais()">FECHAR</button>
+                </div>
+            </div>
+
+            <!-- Modo Edição -->
+            <div id="skill-edit-mode" class="modal-edit-state" style="display: none;">
+                <div class="detail-info">
+                    <div class="description-box">
+                        <label>EDITAR NOTAS / USOS:</label>
+                        <textarea id="edit-pericia-desc"
+                            placeholder="Adicione detalhes sobre como você usa esta perícia..."></textarea>
+                    </div>
+                </div>
+                <div class="modal-actions">
+                    <button class="btn-primary" onclick="salvarDescricaoPericia()">SALVAR</button>
+                    <button class="btn-clear" onclick="toggleModalEdit('skill', false)">CANCELAR</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="modal-talent-detail" class="modal">
+        <div class="modal-content">
+            <h2 id="detalhe-talento-nome">NOME TALENTO</h2>
+
+            <!-- Modo Visualização -->
+            <div id="talent-view-mode" class="modal-view-state">
+                <div class="detail-info">
+                    <div class="info-block">
+                        <label>DESCRIÇÃO BASE:</label>
+                        <p id="detalhe-talento-desc-text" class="text-description italic">---</p>
+                    </div>
+                    <div class="info-block">
+                        <label>SUAS NOTAS / USOS:</label>
+                        <p id="detalhe-talento-notes-text" class="text-description">---</p>
+                    </div>
+                </div>
+                <div class="modal-actions">
+                    <button class="btn-primary" onclick="toggleModalEdit('talent', true)">EDITAR NOTAS ✏️</button>
+                    <button class="btn-clear" onclick="fecharModais()">FECHAR</button>
+                </div>
+            </div>
+
+            <!-- Modo Edição -->
+            <div id="talent-edit-mode" class="modal-edit-state" style="display: none;">
+                <div class="detail-info">
+                    <div class="description-box">
+                        <label>SUAS NOTAS / USOS:</label>
+                        <textarea id="edit-talento-notes" style="height: 150px;"
+                            placeholder="Adicione notas personalizadas sobre este talento..."></textarea>
+                    </div>
+                </div>
+                <div class="modal-actions">
+                    <button class="btn-primary" onclick="salvarDescricaoTalento()">SALVAR</button>
+                    <button class="btn-clear" onclick="toggleModalEdit('talent', false)">CANCELAR</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Edit Mutations -->
+    <div id="modal-edit-mutations" class="modal">
+        <div class="modal-content">
+            <h2>GERENCIAR MUTAÇÕES</h2>
+            <div class="talent-entry-box vertical">
+                <div class="text-center" style="margin-bottom: 20px;">
+                    <button class="btn-primary" onclick="rolarMutacaoAleatoria()"
+                        style="width: 100%; padding: 15px; font-size: 1.2rem; display: flex; align-items: center; justify-content: center; gap: 10px;">
+                        <span>🎲 ROLAR MUTAÇÃO ALEATÓRIA</span>
+                    </button>
+                    <p style="font-size: 0.8rem; color: #888; margin-top: 10px;">Ou procure uma mutação específica:</p>
+                </div>
+
+                <div class="input-line">
+                    <input type="text" id="new-mutation-name" placeholder="Buscar mutação..." list="mutation-list-data"
+                        oninput="checkPredefinedMutation(this.value)">
+                </div>
+                <textarea id="new-mutation-desc" readonly
+                    placeholder="Descrição da mutação aparecerá aqui..."></textarea>
+                <button class="btn-primary" onclick="adicionarMutacao()">ADICIONAR MUTAÇÃO</button>
+            </div>
+            <div id="edit-mutations-list" class="talents-list-edit">
+                <!-- Mutações injetadas via JS -->
+            </div>
+            <div class="modal-actions">
+                <button class="btn-primary" onclick="fecharModais()">FECHAR</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: DETALHE DO ITEM -->
+    <div id="modal-item-detail" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="fecharModais()">&times;</span>
+            <h2 id="detalhe-item-title">DETALHES DO ITEM</h2>
+
+            <!-- Modo Visualização -->
+            <div id="item-view-mode" class="modal-view-state">
+                <div class="detail-info">
+                    <div class="info-block">
+                        <label>PESO:</label>
+                        <p id="detalhe-item-weight" class="text-description">---</p>
+                    </div>
+                    <div class="info-block" id="detalhe-item-bonus-box">
+                        <label>BÔNUS / INTEGRIDADE (🎲):</label>
+                        <p id="detalhe-item-bonus-val" class="text-description">---</p>
+                    </div>
+                    <div class="info-block">
+                        <label>DESCRIÇÃO / NOTAS:</label>
+                        <p id="detalhe-item-notes" class="text-description italic">---</p>
+                    </div>
+                </div>
+                <div class="modal-actions">
+                    <button class="btn-primary" onclick="toggleModalEdit('item', true)">EDITAR ✏️</button>
+                    <button class="btn-clear" onclick="fecharModais()">FECHAR</button>
+                </div>
+            </div>
+
+            <!-- Modo Edição -->
+            <div id="item-edit-mode" class="modal-edit-state" style="display: none;">
+                <div class="input-group">
+                    <label>NOME</label>
+                    <input type="text" id="edit-item-name">
+                </div>
+
+                <div class="input-group">
+                    <label>PESO</label>
+                    <div style="display: flex; gap: 10px;">
+                        <select id="edit-item-weight" style="flex: 1;"
+                            onchange="document.getElementById('edit-item-weight-custom-detail').style.display = (this.value === 'outro') ? 'block' : 'none'">
+                            <option value="pequeno">Pequeno (0)</option>
+                            <option value="leve">Leve (0.5)</option>
+                            <option value="normal">Normal (1.0)</option>
+                            <option value="pesado">Pesado (2.0)</option>
+                            <option value="outro">Custom...</option>
+                        </select>
+                        <input type="number" id="edit-item-weight-custom-detail" placeholder="Peso"
+                            style="display: none; flex: 1;" step="0.5">
+                    </div>
+                </div>
+
+                <div class="input-group">
+                    <label>BÔNUS / INTEGRIDADE (🎲)</label>
+                    <input type="number" id="edit-item-bonus" min="0" max="10">
+                </div>
+
+                <div class="input-group">
+                    <label>DESCRIÇÃO / NOTAS</label>
+                    <textarea id="edit-item-desc" style="height: 100px;"></textarea>
+                </div>
+
+                <div class="modal-actions" style="margin-top: 20px;">
+                    <button class="btn-primary" onclick="salvarItemDetail()">SALVAR</button>
+                    <button class="btn-clear" onclick="toggleModalEdit('item', false)">CANCELAR</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="modal-mutation-detail" class="modal">
+        <div class="modal-content">
+            <h2 id="detalhe-mutacao-nome">NOME MUTAÇÃO</h2>
+
+            <!-- Modo Visualização -->
+            <div id="mutation-view-mode" class="modal-view-state">
+                <div class="detail-info">
+                    <div class="info-block">
+                        <label>DESCRIÇÃO BASE:</label>
+                        <p id="detalhe-mutacao-desc-text" class="text-description italic">---</p>
+                    </div>
+                    <div class="info-block">
+                        <label>SUAS NOTAS / USOS:</label>
+                        <p id="detalhe-mutacao-notes-text" class="text-description">---</p>
+                    </div>
+                </div>
+                <div class="modal-actions">
+                    <button class="btn-primary" onclick="toggleModalEdit('mutation', true)">EDITAR NOTAS ✏️</button>
+                    <button class="btn-clear" onclick="fecharModais()">FECHAR</button>
+                </div>
+            </div>
+
+            <!-- Modo Edição -->
+            <div id="mutation-edit-mode" class="modal-edit-state" style="display: none;">
+                <div class="detail-info">
+                    <div class="description-box">
+                        <label>SUAS NOTAS / USOS:</label>
+                        <textarea id="edit-mutacao-notes" style="height: 150px;"
+                            placeholder="Adicione notas personalizadas sobre esta mutação..."></textarea>
+                    </div>
+                </div>
+                <div class="modal-actions">
+                    <button class="btn-primary" onclick="salvarDescricaoMutacao()">SALVAR</button>
+                    <button class="btn-clear" onclick="toggleModalEdit('mutation', false)">CANCELAR</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Escolha Avatar -->
+    <div id="modal-avatar-choice" class="modal">
+        <div class="modal-content text-center">
+            <h2>OPÇÕES DE IMAGEM</h2>
+            <div class="modal-selection-grid">
+                <button class="btn-module-choice" onclick="visualizarImagem()">
+                    <span class="choice-icon">🔍</span>
+                    <span class="choice-title">VISUALIZAR</span>
+                </button>
+                <button class="btn-module-choice"
+                    onclick="document.getElementById('edit-char-file').click(); fecharModais();">
+                    <span class="choice-icon">🖼️</span>
+                    <span class="choice-title">TROCAR</span>
+                </button>
+            </div>
+            <button class="btn-clear mt-2" onclick="fecharModais()">CANCELAR</button>
+        </div>
+    </div>
+
+    <!-- Modal Full Image View -->
+    <div id="modal-view-image" class="modal" onclick="fecharModais()">
+        <div class="modal-content full-image-modal-content">
+            <img id="full-view-img" src="" alt="Full Avatar">
+            <button class="btn-close-abs" onclick="fecharModais()">✖</button>
+        </div>
+    </div>
+
+    <!-- Modal 1: Escolha de Criação -->
+    <div id="modal-escolha" class="modal">
+        <div class="modal-content text-center">
+            <h2>CRIAR NOVO MUTANTE</h2>
+            <p>Selecione o método de geração de dados:</p>
+            <div class="modal-selection-grid">
+                <button class="btn-module-choice" onclick="abrirModalManual()">
+                    <span class="choice-icon">✍️</span>
+                    <span class="choice-title">MANUAL</span>
+                </button>
+                <button class="btn-module-choice disabled" title="Em breve">
+                    <span class="choice-icon">🎲</span>
+                    <span class="choice-title">ALEATÓRIO</span>
+                </button>
+            </div>
+            <button class="btn-clear mt-2" onclick="fecharModais()">CANCELAR</button>
+        </div>
+    </div>
+
+    <!-- Modal 2: Criação Manual -->
+    <div id="modal-manual" class="modal">
+        <div class="modal-content">
+            <h2>DADOS INICIAIS</h2>
+            <div class="input-line">
+                <label>NOME:</label>
+                <input type="text" id="new-char-name" placeholder="Ex: Krull">
+            </div>
+            <div class="input-line">
+                <label>FUNÇÃO:</label>
+                <select id="new-char-role">
+                    <option value="Adestrador">Adestrador</option>
+                    <option value="Batedor">Batedor</option>
+                    <option value="Brutamonte">Brutamonte</option>
+                    <option value="Chefão">Chefão</option>
+                    <option value="Cronista">Cronista</option>
+                    <option value="Engenheiro">Engenheiro</option>
+                    <option value="Escravo">Escravo</option>
+                </select>
+            </div>
+            <div class="input-line">
+                <label>TIPO:</label>
+                <div class="type-selector">
+                    <label class="type-option">
+                        <input type="radio" name="char-type" value="pc" checked>
+                        <span class="type-label">PERSONAGEM JOGADOR</span>
+                    </label>
+                    <label class="type-option">
+                        <input type="radio" name="char-type" value="npc">
+                        <span class="type-label npc-label">NPC / AMBIENTE</span>
+                    </label>
+                </div>
+            </div>
+            <div class="modal-actions">
+                <button class="btn-clear" onclick="fecharModais()">CANCELAR</button>
+                <button class="btn-primary" onclick="criarPersonagemManual()">CONFIRMAR CRIAÇÃO</button>
+            </div>
+        </div>
+    </div>
+
+    <datalist id="equip-list"></datalist>
+
+    <script src="js/global.js"></script>
+    <script src="js/personagens.js"></script>
+</body>
+
+</html>

@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculadora Digital MYZ</title>
+    <meta name="description" content="Calculadora de Dados para Mutant Ano Zero">
+    <link rel="stylesheet" href="css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Teko:wght@500;700&display=swap"
+        rel="stylesheet">
+</head>
+
+<body>
+    <div class="background-noise"></div>
+    <div class="app-container">
+        <a href="index.html" class="btn-back">← VOLTAR AO TERMINAL CENTRAL</a>
+        <header>
+            <h1>MYZ // TERMINAL ROLLER</h1>
+            <p class="subtitle">SISTEMA DE ANÁLISE DE PROBABILIDADE MUTANTE
+                <button class="btn-info" onclick="toggleModal()" title="Ver regras e legenda">[ i ] INFO</button>
+                <button class="btn-info" onclick="toggleLogModal()" title="Ver histórico de rolagens">📜 LOG</button>
+            </p>
+        </header>
+
+        <main>
+            <!-- ETAPA 1: SELEÇÃO + MODIFICADORES -->
+            <div id="step-1-selection">
+                <section class="character-selection-area">
+                    <div class="input-group full-width">
+                        <label>SELECIONAR MUTANTE</label>
+                        <select id="select-character" onchange="selecionarPersonagem(this.value)">
+                            <option value="">-- SELEÇÃO MANUAL --</option>
+                            <!-- Injetado via JS -->
+                        </select>
+                    </div>
+                </section>
+
+                <section id="char-tips-area" class="stunts-panel"
+                    style="display: none; margin-bottom: 20px; border-color: var(--accent); opacity: 0.9;">
+                    <h3>📜 DICAS DO MUTANTE (TALENTOS)</h3>
+                    <div id="char-tips-list" class="stunts-container" style="max-height: 120px; overflow-y: auto;">
+                        <!-- Dicas injetadas via JS -->
+                    </div>
+                </section>
+
+                <section class="controls roller-controls">
+                    <div class="input-group color-base">
+                        <label>Atributo Base</label>
+                        <select id="select-attribute" onchange="atualizarPericias()">
+                            <option value="">Selecione...</option>
+                            <option value="forca">FORÇA</option>
+                            <option value="agilidade">AGILIDADE</option>
+                            <option value="astucia">ASTÚCIA</option>
+                            <option value="empatia">EMPATIA</option>
+                        </select>
+                        <div class="spinner mini-spinner">
+                            <button class="btn-spin minus" onclick="modificarDado('base', -1)">-</button>
+                            <input type="number" id="qty-base" value="0" min="0" max="20" readonly>
+                            <button class="btn-spin plus" onclick="modificarDado('base', 1)">+</button>
+                        </div>
+                    </div>
+
+                    <div class="input-group color-skill">
+                        <label>Perícia</label>
+                        <select id="select-skill" onchange="atualizarValorPericia()">
+                            <option value="">Selecione...</option>
+                            <!-- Injetado via JS -->
+                        </select>
+                        <div class="spinner mini-spinner">
+                            <button class="btn-spin minus" onclick="modificarDado('skill', -1)">-</button>
+                            <input type="number" id="qty-skill" value="0" min="0" max="20" readonly>
+                            <button class="btn-spin plus" onclick="modificarDado('skill', 1)">+</button>
+                        </div>
+                    </div>
+
+                    <div class="input-group color-gear">
+                        <label>Equipamento</label>
+                        <select id="select-gear" onchange="atualizarValorEquip()">
+                            <option value="">Sem Equipamento</option>
+                            <!-- Injetado via JS -->
+                        </select>
+                        <div class="spinner mini-spinner">
+                            <button class="btn-spin minus" onclick="modificarDado('gear', -1)">-</button>
+                            <input type="number" id="qty-gear" value="0" min="0" max="20" readonly>
+                            <button class="btn-spin plus" onclick="modificarDado('gear', 1)">+</button>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="arca-panel" style="margin-top: 20px; text-align: center; border-color: #444;">
+                    <label style="display: block; font-size: 0.8rem; color: #888; margin-bottom: 10px;">BÔNUS /
+                        DIFICULDADE DE CENA</label>
+                    <div class="spinner mini-spinner" style="justify-content: center;">
+                        <button class="btn-spin minus" onclick="modificarDado('modifier', -1)">-</button>
+                        <input type="number" id="qty-modifier" value="0" min="-10" max="10" readonly
+                            style="width: 60px; font-size: 1.5rem;">
+                        <button class="btn-spin plus" onclick="modificarDado('modifier', 1)">+</button>
+                    </div>
+                </section>
+
+                <section class="actions" style="margin-top: 20px;">
+                    <button class="btn-primary" onclick="rolarDados(false)">INICIAR ROLAGEM</button>
+                    <button class="btn-clear" onclick="limpar()">LIMPAR TUDO</button>
+                </section>
+            </div>
+
+            <!-- ETAPA 2: RESULTADOS (E LOG IMEDIATO) -->
+            <div id="step-3-results" style="display: none;">
+                <!-- New Log Area for Current Roll -->
+                <div id="current-roll-header" class="arca-panel"
+                    style="margin-bottom: 15px; padding: 10px; border-color: var(--accent); background: rgba(0,0,0,0.5);">
+                    <div id="current-roll-log" style="font-size: 0.9rem; line-height: 1.4;">
+                        <!-- Log da rolagem atual injetado via JS -->
+                    </div>
+                </div>
+
+                <section class="status-panel">
+                    <div class="status-box highlight-success">
+                        <span class="status-label">SUCESSOS</span>
+                        <span id="counter-success" class="status-value">0</span>
+                    </div>
+                    <div class="status-box highlight-trauma">
+                        <span class="status-label">TRAUMA BASE</span>
+                        <span id="counter-trauma" class="status-value">0</span>
+                    </div>
+                    <div class="status-box highlight-damage">
+                        <span class="status-label">DANO EQUIP.</span>
+                        <span id="counter-damage" class="status-value">0</span>
+                    </div>
+                </section>
+
+                <section class="arena-container">
+                    <div id="dice-arena" class="dice-arena">
+                        <!-- Dados renderizados aqui -->
+                    </div>
+
+                    <section id="stunts-section" class="stunts-panel" style="display: none; margin-top: 15px;">
+                        <h3>PROEZAS DISPONÍVEIS (<span id="stunt-count">0</span>)</h3>
+                        <div id="stunts-list" class="stunts-container">
+                            <!-- Injetado via JS -->
+                        </div>
+                    </section>
+                </section>
+
+                <section class="actions" style="margin-top: 2rem;">
+                    <button id="btn-push" class="btn-push" onclick="rolarDados(true)" disabled>FORÇAR ROLAGEM</button>
+                    <button class="btn-primary" onclick="novaRolagem()">NOVA ROLAGEM</button>
+                </section>
+            </div>
+
+        </main>
+    </div>
+
+    <div id="rules-modal" class="modal">
+        <div class="modal-content">
+            <h2>MECÂNICAS E LEGENDA</h2>
+            <ul class="legend-list">
+                <li><span class="icon-6">☢</span> <strong>[6] SUCESSO:</strong> O que você precisa para passar no teste.
+                </li>
+                <li><span class="icon-1-base">☣</span> <strong>[1] TRAUMA (Base):</strong> Reduz seu atributo se você
+                    forçar a rolagem.</li>
+                <li><span class="icon-1-gear">⚡</span> <strong>[1] DANO (Equip.):</strong> Quebra ou gasta o item se
+                    você forçar a rolagem.</li>
+            </ul>
+            <div class="rules-text">
+                <h3>FORÇAR ROLAGEM (PUSH)</h3>
+                <p>Se falhar ou quiser mais sucessos, você pode forçar a rolagem.</p>
+                <p>Ao fazer isso, todos os dados que <strong>não são 6</strong>, e <strong>não são 1 nos dados Base e
+                        Equipamento</strong>, são rerolados. Os 1s só causam Trauma/Dano <strong>após</strong> você
+                    decidir Forçar.</p>
+            </div>
+            <button class="btn-primary btn-close" onclick="toggleModal()">FECHAR</button>
+        </div>
+    </div>
+
+    <div id="log-modal" class="modal">
+        <div class="modal-content"
+            style="max-width: 600px; padding: 0; overflow: hidden; display: flex; flex-direction: column;">
+            <div style="padding: 2rem 2rem 1rem 2rem; border-bottom: 1px dashed var(--color-skill);">
+                <h2 style="margin: 0;">HISTÓRICO DE ROLAGENS</h2>
+            </div>
+            <div id="roll-log-list"
+                style="padding: 1rem 2rem; overflow-y: auto; flex: 1; display: flex; flex-direction: column; gap: 10px;">
+                <!-- Logs injetados via JS -->
+                <p style="text-align: center; color: #666;">Nenhuma rolagem registrada ainda.</p>
+            </div>
+            <div class="modal-actions"
+                style="padding: 1.5rem 2rem; border-top: 1px dashed var(--color-skill); display: flex; gap: 1rem; background: rgba(0,0,0,0.2);">
+                <button class="btn-clear" onclick="limparLog()">LIMPAR HISTÓRICO</button>
+                <button class="btn-primary" onclick="toggleLogModal()">FECHAR</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/app.js"></script>
+    <script src="js/global.js"></script>
+</body>
+
+</html>
