@@ -1530,6 +1530,30 @@ button {
     gap: 0.8rem;
 }
 
+.hub-view-controls {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.btn-secondary {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid #333;
+    color: #aaa;
+    padding: 0.8rem 1.2rem;
+    border-radius: 4px;
+    cursor: pointer;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.85rem;
+    transition: 0.2s;
+}
+
+.btn-secondary:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: #fff;
+    border-color: #555;
+}
+
 .btn-filter {
     background: transparent;
     color: #666;
@@ -1555,13 +1579,13 @@ button {
 
 .character-hub-grid {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(2, 1fr);
     gap: 1.5rem;
     margin-top: 1rem;
 }
 
 .empty-hub {
-    grid-column: span 3;
+    grid-column: span 2;
     text-align: center;
     padding: 4rem 2rem;
     background: rgba(0, 0, 0, 0.4);
@@ -1589,81 +1613,242 @@ button {
     overflow: hidden;
 }
 
-.character-card::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 4px;
-    height: 100%;
-    background: var(--color-gear);
+/* Redesign do Card no Hub */
+.character-card.redesign {
+    padding: 1.5rem;
+    gap: 1rem;
+    background: rgba(15, 18, 15, 0.95);
+    border: 1px solid #2a2a2a;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+    display: flex;
+    flex-direction: column;
 }
 
-.character-card.type-pc::before {
-    background: var(--color-skill);
+.card-header-redesign {
+    display: flex;
+    gap: 1.2rem;
+    align-items: center;
+    width: 100%;
 }
 
-.character-card.type-npc::before {
-    background: var(--accent);
-}
-
-.character-card:hover {
-    transform: translateY(-5px);
-    background: rgba(30, 40, 30, 0.9);
-    border-color: var(--color-skill);
-    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.5);
-}
-
-.card-portrait {
-    width: 56px;
-    /* Aprox 1.5cm */
-    height: 56px;
-    border-radius: 4px;
+.card-portrait-hub {
+    width: 50px;
+    height: 50px;
+    border-radius: 6px;
     overflow: hidden;
-    margin-bottom: 0.5rem;
-    border: 1px solid #444;
+    border: 2px solid #333;
+    flex-shrink: 0;
+    background: #000;
 }
 
-.card-portrait img {
+.card-portrait-hub img {
     width: 100%;
     height: 100%;
     object-fit: cover;
 }
 
-.card-type-badge {
-    position: absolute;
-    top: 10px;
-    right: 10px;
-    font-size: 0.7rem;
-    padding: 2px 6px;
-    border-radius: 3px;
-    background: #222;
-    color: #aaa;
-    border: 1px solid #444;
+.header-main-info {
+    flex: 1;
+    min-width: 0;
 }
 
-.type-pc .card-type-badge {
+.char-name-hub {
+    font-family: 'Teko', sans-serif;
+    font-size: 2.2rem;
+    color: #fff;
+    line-height: 1;
+    margin: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.char-role-hub {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.85rem;
+    color: var(--color-skill);
+    letter-spacing: 1px;
+    margin: 2px 0 0 0;
+}
+
+.card-tag-hub {
+    font-size: 0.65rem;
+    padding: 2px 6px;
+    background: rgba(0, 0, 0, 0.4);
+    border: 1px solid #444;
+    border-radius: 3px;
+    color: #888;
+    height: fit-content;
+    font-family: 'Share Tech Mono', monospace;
+}
+
+.type-pc .card-tag-hub {
     color: var(--color-skill);
     border-color: var(--color-skill);
 }
 
-.type-npc .card-type-badge {
+.type-npc .card-tag-hub {
     color: var(--accent);
     border-color: var(--accent);
 }
 
-.card-info h3 {
-    font-family: 'Teko', sans-serif;
-    font-size: 1.8rem;
-    color: var(--text-main);
-    line-height: 1;
-    margin-bottom: 0.2rem;
+/* Switchable area */
+.hub-details-area {
+    display: flex;
+    flex-direction: column;
+    gap: 1.2rem;
+    border-top: 1px solid #222;
+    padding-top: 1rem;
 }
 
-.role-text {
-    font-size: 0.9rem;
-    color: var(--color-skill);
+.view-card .hub-details-area {
+    display: none;
+}
+
+.character-hub-grid.mode-card {
+    grid-template-columns: repeat(2, 1fr);
+}
+
+@media screen and (max-width: 1200px) {
+    .character-hub-grid.mode-card {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media screen and (max-width: 768px) {
+    .character-hub-grid.mode-card {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Stats Row no Card */
+.card-stats-grid-hub {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 0.8rem;
+}
+
+.hub-stat-box {
+    background: rgba(0, 0, 0, 0.4);
+    border: 1px solid #222;
+    padding: 1rem 0.5rem;
+    border-radius: 6px;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.3rem;
+    transition: 0.3s;
+}
+
+.hub-stat-box .hub-stat-icon {
+    font-size: 1.2rem;
+    opacity: 0.7;
+}
+
+.hub-stat-box .hub-stat-val {
+    font-family: 'Teko', sans-serif;
+    font-size: 2.22rem;
+    color: #fff;
+    line-height: 1;
+}
+
+.hub-stat-box .hub-stat-label {
+    font-size: 0.65rem;
+    color: #666;
     letter-spacing: 1px;
+}
+
+.hub-stat-box.red {
+    border-bottom: 2px solid var(--danger);
+}
+
+.hub-stat-box.yellow {
+    border-bottom: 2px solid var(--accent);
+}
+
+.hub-stat-box.blue {
+    border-bottom: 2px solid #00b4d8;
+}
+
+.hub-stat-box.green {
+    border-bottom: 2px solid var(--color-skill);
+}
+
+/* Sections in Card */
+.card-hub-section {
+    border-top: 1px solid #222;
+    padding-top: 1rem;
+}
+
+.hub-section-title {
+    font-size: 0.8rem;
+    color: #555;
+    letter-spacing: 2px;
+    margin-bottom: 0.8rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.hub-add-hint {
+    color: var(--color-skill);
+    font-weight: bold;
+    cursor: pointer;
+    opacity: 0.6;
+}
+
+.hub-add-hint:hover {
+    opacity: 1;
+}
+
+.hub-skills-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.5rem 1.5rem;
+}
+
+.hub-skill-item {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.9rem;
+    color: #aaa;
+    border-bottom: 1px solid #1a1a1a;
+    padding-bottom: 2px;
+}
+
+.hub-skill-item span:first-child {
+    font-weight: bold;
+    letter-spacing: 0.5px;
+}
+
+.hub-skill-item span:last-child {
+    color: #fff;
+    font-family: 'Share Tech Mono', monospace;
+}
+
+.hub-mini-list {
+    font-size: 0.95rem;
+    color: #ccc;
+    line-height: 1.5;
+}
+
+.hub-mini-list.dot-list div {
+    position: relative;
+    padding-left: 15px;
+}
+
+.hub-mini-list.dot-list div::before {
+    content: '•';
+    position: absolute;
+    left: 0;
+    color: var(--color-skill);
+}
+
+.hub-mini-list .dim {
+    color: #555;
+    font-style: italic;
+    font-size: 0.85rem;
 }
 
 /* Modal Actions and Layout */
@@ -2670,17 +2855,35 @@ textarea#dash-appearance:focus {
 .stat-card:hover {
     border-color: #555;
     transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.5);
+}
+
+.stat-card.card-red {
+    border-bottom: 3px solid var(--danger);
+}
+
+.stat-card.card-yellow {
+    border-bottom: 3px solid var(--accent);
+}
+
+.stat-card.card-blue {
+    border-bottom: 3px solid #00b4d8;
+}
+
+.stat-card.card-green {
+    border-bottom: 3px solid var(--color-skill);
 }
 
 .stat-card .card-header {
-    background: rgba(255, 255, 255, 0.03);
-    padding: 8px;
+    background: rgba(255, 255, 255, 0.05);
+    padding: 10px;
     text-align: center;
-    font-size: 0.75rem;
-    font-weight: bold;
-    letter-spacing: 1px;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-    color: #888;
+    font-size: 0.85rem;
+    font-weight: 800;
+    letter-spacing: 2px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    color: #fff;
+    font-family: 'Teko', sans-serif;
 }
 
 .stat-card .card-body {

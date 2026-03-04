@@ -26,7 +26,11 @@
                     <button class="btn-filter" onclick="filterCharacters('pc')">JOGADORES</button>
                     <button class="btn-filter" onclick="filterCharacters('npc')">NPCs</button>
                 </div>
-                <button class="btn-primary" onclick="abrirModalEscolhaCriacao()">+ NOVO MUTANTE</button>
+                <div class="hub-view-controls">
+                    <button id="btn-toggle-view" class="btn-secondary" onclick="toggleHubView()"
+                        title="Alternar Visualização">RESUMO 📋</button>
+                    <button class="btn-primary" onclick="abrirModalEscolhaCriacao()">+ NOVO MUTANTE</button>
+                </div>
             </div>
         </header>
 
@@ -75,32 +79,32 @@
                             title="Editar Atributos">✏️</button>
                     </div>
                     <div class="stats-grid redesign">
-                        <div class="stat-card" data-stat="forca">
-                            <div class="card-header">FORÇA</div>
+                        <div class="stat-card card-red" data-stat="forca">
+                            <div class="card-header">🛡️ FORÇA</div>
                             <div class="card-body">
                                 <div class="val-main" id="val-forca">0</div>
                                 <div class="val-divider"></div>
                                 <div class="val-sub"><span id="val-dano">0</span> <small>DANO</small></div>
                             </div>
                         </div>
-                        <div class="stat-card" data-stat="agilidade">
-                            <div class="card-header">AGILIDADE</div>
+                        <div class="stat-card card-yellow" data-stat="agilidade">
+                            <div class="card-header">⚡ AGILIDADE</div>
                             <div class="card-body">
                                 <div class="val-main" id="val-agilidade">0</div>
                                 <div class="val-divider"></div>
                                 <div class="val-sub"><span id="val-fadiga">0</span> <small>FADIGA</small></div>
                             </div>
                         </div>
-                        <div class="stat-card" data-stat="astucia">
-                            <div class="card-header">ASTÚCIA</div>
+                        <div class="stat-card card-blue" data-stat="astucia">
+                            <div class="card-header">🧠 ASTÚCIA</div>
                             <div class="card-body">
                                 <div class="val-main" id="val-astucia">0</div>
                                 <div class="val-divider"></div>
                                 <div class="val-sub"><span id="val-confusao">0</span> <small>CONFUSÃO</small></div>
                             </div>
                         </div>
-                        <div class="stat-card" data-stat="empatia">
-                            <div class="card-header">EMPATIA</div>
+                        <div class="stat-card card-green" data-stat="empatia">
+                            <div class="card-header">💚 EMPATIA</div>
                             <div class="card-body">
                                 <div class="val-main" id="val-empatia">0</div>
                                 <div class="val-divider"></div>

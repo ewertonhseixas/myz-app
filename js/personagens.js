@@ -1,5 +1,6 @@
 let characters = [];
 let currentCharacterId = null;
+let hubViewMode = 'details'; // 'card' ou 'details'
 
 const TALENTS_BASE = {
     "Adestrador de Cães": [
@@ -620,9 +621,19 @@ function loadCharacters() {
 // Renderização do Hub
 function renderHub(filter = 'all') {
     const grid = document.getElementById("hub-main");
+    if (!grid) return;
     grid.innerHTML = "";
 
     let filtered = characters;
+    if (filter === 'all') {
+        const activeFilterBtn = document.querySelector('.btn-filter.active');
+        if (activeFilterBtn) {
+            const filterAttr = activeFilterBtn.getAttribute('onclick');
+            if (filterAttr.includes('pc')) filter = 'pc';
+            else if (filterAttr.includes('npc')) filter = 'npc';
+        }
+    }
+
     if (filter === 'pc') filtered = characters.filter(c => c.type === 'pc');
     if (filter === 'npc') filtered = characters.filter(c => c.type === 'npc');
 
@@ -636,23 +647,117 @@ function renderHub(filter = 'all') {
         return;
     }
 
+    grid.className = `character-hub-grid mode-${hubViewMode}`;
+
     filtered.forEach(char => {
         const card = document.createElement("div");
-        card.className = `character-card type-${char.type}`;
+        card.className = `character-card redesign type-${char.type} view-${hubViewMode}`;
         card.onclick = () => verDetalhes(char.id);
 
+        const charName = char.name || "Sem Nome";
+        const charRole = char.role || "Sem Função";
+
+        const forca = (char.stats?.forca || 0) - (char.traumas?.dano || 0);
+        const agi = (char.stats?.agilidade || 0) - (char.traumas?.fadiga || 0);
+        const ast = (char.stats?.astucia || 0) - (char.traumas?.confusao || 0);
+        const emp = (char.stats?.empatia || 0) - (char.traumas?.duvida || 0);
+
+        const skills = char.skills || {};
+        const talents = char.talents || [];
+        const mutations = char.mutations || [];
+
         card.innerHTML = `
-            <div class="card-type-badge">${char.type === 'pc' ? 'PJ' : 'NPC'}</div>
-            <div class="card-portrait">
-                <img src="${char.img || 'assets/no avatar.webp'}" alt="Portrait">
+            <div class="card-header-redesign">
+                <div class="card-portrait-hub">
+                    <img src="${char.img || 'assets/no avatar.webp'}" alt="Portrait" onerror="this.src='assets/no avatar.webp'">
+                </div>
+                <div class="header-main-info">
+                    <h3 class="char-name-hub">${charName.toUpperCase()}</h3>
+                    <p class="char-role-hub">${charRole.toUpperCase()}</p>
+                </div>
+                <div class="card-tag-hub">${char.type === 'pc' ? 'PJ' : 'NPC'}</div>
             </div>
-            <div class="card-info">
-                <h3>${char.name.toUpperCase()}</h3>
-                <p class="role-text">${char.role.toUpperCase()}</p>
+
+            <div class="hub-details-area">
+                <div class="card-stats-grid-hub">
+                    <div class="hub-stat-box red">
+                        <div class="hub-stat-icon">🛡️</div>
+                        <div class="hub-stat-val">${forca}</div>
+                        <div class="hub-stat-label">FOR</div>
+                    </div>
+                    <div class="hub-stat-box yellow">
+                        <div class="hub-stat-icon">⚡</div>
+                        <div class="hub-stat-val">${agi}</div>
+                        <div class="hub-stat-label">AGI</div>
+                    </div>
+                    <div class="hub-stat-box blue">
+                        <div class="hub-stat-icon">🧠</div>
+                        <div class="hub-stat-val">${ast}</div>
+                        <div class="hub-stat-label">AST</div>
+                    </div>
+                    <div class="hub-stat-box green">
+                        <div class="hub-stat-icon">💚</div>
+                        <div class="hub-stat-val">${emp}</div>
+                        <div class="hub-stat-label">EMP</div>
+                    </div>
+                </div>
+
+                <div class="card-hub-section">
+                    <div class="hub-section-title">PERÍCIAS PRINCIPAIS</div>
+                    <div class="hub-skills-grid">
+                        <div class="hub-skill-item"><span>LUTAR</span><span>${skills.lutar || 0}</span></div>
+                        <div class="hub-skill-item"><span>ATIRAR</span><span>${skills.atirar || 0}</span></div>
+                        <div class="hub-skill-item"><span>OBSERVAR</span><span>${skills.observar || 0}</span></div>
+                        <div class="hub-skill-item"><span>MANIPULAR</span><span>${skills.manipular || 0}</span></div>
+                    </div>
+                </div>
+
+                <div class="card-hub-section">
+                    <div class="hub-section-title">TALENTOS & MUTAÇÕES</div>
+                    <div class="hub-mini-list dot-list">
+                        ${[...talents, ...mutations].length > 0 ? [...talents, ...mutations].slice(0, 3).map(tm => `<div>• ${tm.name}</div>`).join('') : '<div class="dim">Nenhum</div>'}
+                        ${([...talents, ...mutations]).length > 3 ? `<div class="dim">... e mais ${([...talents, ...mutations]).length - 3}</div>` : ''}
+                    </div>
+                </div>
             </div>
         `;
         grid.appendChild(card);
     });
+}
+
+function toggleHubView() {
+    hubViewMode = (hubViewMode === 'card') ? 'details' : 'card';
+    const btn = document.getElementById("btn-toggle-view");
+    if (btn) {
+        btn.innerHTML = hubViewMode === 'card' ? "CARD 🎴" : "RESUMO 📋";
+    }
+    renderHub();
+}
+
+function abrirModalHeaderComId(id) {
+    currentCharacterId = id;
+    loadCharacterDataToHeaderModal(id);
+    document.getElementById("modal-edit-header").classList.add("active");
+    toggleNoScroll(true);
+}
+
+function loadCharacterDataToHeaderModal(id) {
+    const char = characters.find(c => c.id === id);
+    if (!char) return;
+
+    document.getElementById("edit-char-name").value = char.name || "";
+    document.getElementById("edit-player-name").value = char.playerName || "";
+    document.getElementById("edit-char-role").value = char.role || "adestrador";
+    document.getElementById("edit-char-type").value = char.type || "pc";
+    document.getElementById("edit-char-img").value = char.img || "";
+}
+
+function deletarPersonagemComId(id) {
+    if (confirm("Tem certeza que deseja apagar permanentemente este registro?")) {
+        characters = characters.filter(c => c.id !== id);
+        saveCharacters();
+        renderHub();
+    }
 }
 
 // Modais
