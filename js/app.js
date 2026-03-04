@@ -74,52 +74,51 @@ function atualizarPericias() {
     skillSelect.innerHTML = '<option value="">Selecione...</option>';
 
     if (selectedChar) {
-        // Update Base Qty based on selected attribute
         if (attr) {
             document.getElementById("qty-base").value = selectedChar.stats[attr] || 0;
         } else {
             document.getElementById("qty-base").value = 0;
         }
-
-        // Get Special skill for role
-        const role = selectedChar.role.toLowerCase();
-        const mySpec = SPECIALIST_SKILLS[role];
-
-        // 1. My Special
-        if (mySpec && (!attr || mySpec.attr === attr)) {
-            const val = selectedChar.skills.especialista || 0;
-            appendSkillOption(skillSelect, mySpec.name, 'especialista', val, true);
-        }
-
-        // 2. Basics
-        BASIC_SKILLS.filter(s => !attr || s.attr === attr)
-            .sort((a, b) => a.name.localeCompare(b.name))
-            .forEach(s => {
-                const val = selectedChar.skills[s.id] || 0;
-                appendSkillOption(skillSelect, s.name, s.id, val, false);
-            });
-
-        // 3. Other Specials (only if no attribute filter or matches)
-        const otherSpecs = Object.keys(SPECIALIST_SKILLS)
-            .filter(r => r !== role)
-            .map(r => SPECIALIST_SKILLS[r]);
-
-        otherSpecs.filter(s => !attr || s.attr === attr)
-            .sort((a, b) => a.name.localeCompare(b.name))
-            .forEach(s => {
-                const val = selectedChar.skills[s.id] || 0;
-                appendSkillOption(skillSelect, s.name, s.id, val, true);
-            });
     } else {
-        // Manual mode: Show all basics
         if (!attr) document.getElementById("qty-base").value = 0;
-
-        BASIC_SKILLS.filter(s => !attr || s.attr === attr)
-            .sort((a, b) => a.name.localeCompare(b.name))
-            .forEach(s => {
-                appendSkillOption(skillSelect, s.name, s.id, 0, false);
-            });
     }
+
+    const role = selectedChar?.role?.toLowerCase();
+    const mySpec = role ? SPECIALIST_SKILLS[role] : null;
+    const mySpecVal = selectedChar ? (selectedChar.skills?.especialista || 0) : 0;
+
+    // 1. My Special (only if has points)
+    if (mySpec && mySpecVal > 0 && (!attr || mySpec.attr === attr)) {
+        appendSkillOption(skillSelect, mySpec.name, 'especialista', mySpecVal, true);
+    }
+
+    // 2. Basics
+    BASIC_SKILLS.filter(s => !attr || s.attr === attr)
+        .sort((a, b) => a.name.localeCompare(b.name))
+        .forEach(s => {
+            const val = selectedChar ? (selectedChar.skills[s.id] || 0) : 0;
+            appendSkillOption(skillSelect, s.name, s.id, val, false);
+        });
+
+    // 3. Other Specials (or mySpec with 0 points)
+    const allSpecs = Object.keys(SPECIALIST_SKILLS).map(r => ({ role: r, ...SPECIALIST_SKILLS[r] }));
+    allSpecs.filter(s => !attr || s.attr === attr)
+        .sort((a, b) => a.name.localeCompare(b.name))
+        .forEach(s => {
+            if (mySpec && s.id === mySpec.id && mySpecVal > 0) return; // Already added at top
+
+            let val = 0;
+            let idToUse = s.id;
+            if (selectedChar) {
+                if (mySpec && s.id === mySpec.id) {
+                    val = mySpecVal;
+                    idToUse = 'especialista';
+                } else {
+                    val = selectedChar.skills[s.id] || 0;
+                }
+            }
+            appendSkillOption(skillSelect, s.name, idToUse, val, true);
+        });
 }
 
 function appendSkillOption(select, name, id, val, isSpecial) {
@@ -148,9 +147,9 @@ function atualizarValorPericia() {
         attrId = skillBase.attr;
     } else {
         // Check if it's a specialist skill
-        for (const role in SPECIALIST_SKILLS) {
-            if (SPECIALIST_SKILLS[role].id === skillId || skillId === 'especialista') {
-                attrId = SPECIALIST_SKILLS[role].attr;
+        for (const r in SPECIALIST_SKILLS) {
+            if (SPECIALIST_SKILLS[r].id === skillId || (skillId === 'especialista' && selectedChar && selectedChar.role.toLowerCase() === r)) {
+                attrId = SPECIALIST_SKILLS[r].attr;
                 break;
             }
         }
